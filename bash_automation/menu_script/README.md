@@ -37,6 +37,8 @@ Menu Options
 5) Exit
 
 Example run:
+
+```
 ********************************
 1) Show system info
 2) Monitor processes
@@ -52,6 +54,7 @@ Hostname: dhamo-VirtualBox
 User: root
 Uptime: up 1 hour, 25 minutes
 ✅ Task completed. Returning to menu...
+```
 
 ## Struggles Faced
 
@@ -61,7 +64,6 @@ This worked — but it was unnecessarily long and messy.
 After experimenting, I discovered the find command.
 Even there, I faced another small hurdle: find prints full file paths, which isn’t user-friendly.
 Finally, I learned how to filter only the filename using -printf "%f\n".
-That small syntax fix felt like a big win 💪.
 
 ## Learnings
 
