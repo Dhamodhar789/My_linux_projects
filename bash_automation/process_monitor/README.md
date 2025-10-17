@@ -34,6 +34,7 @@ Option	Description
 --interval=<seconds>	Optional. Monitoring interval in seconds. Default: 30s
 -h, --help	Display usage instructions
 Example Run
+```
 Check the log files in the folder monitor_logs_17_10_2025_18_40_00
 ℹ️ INFO: Starting monitoring loop for 3 process(es) every 20 seconds.
 ✅ SUCCESS: 'sshd' is a valid process or service.
@@ -44,7 +45,7 @@ Check the log files in the folder monitor_logs_17_10_2025_18_40_00
 ℹ️ INFO: Check if process "nginx" is still running...
 ❌ ERROR: "nginx" is not running. Restarting...
 ✅ SUCCESS: Restarted 'nginx' as a background process (PID: 12345).
-
+```
 
 Logs are written to:
 
@@ -82,3 +83,4 @@ This script have definitely challenged my patience 😂 where I faced unexpected
  Short-term goal: Build more advanced Bash scripts and master Linux automation.
 
  Long-term goal: Solve bigger problems and deploy large-scale Linux projects.
+
