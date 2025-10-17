@@ -33,7 +33,8 @@ Option	Description
 --processes "proc1,proc2,..."	Comma-separated list of processes/services to monitor
 --interval=<seconds>	Optional. Monitoring interval in seconds. Default: 30s
 -h, --help	Display usage instructions
-Example Run
+
+### Example Run
 ```
 Check the log files in the folder monitor_logs_17_10_2025_18_40_00
 ℹ️ INFO: Starting monitoring loop for 3 process(es) every 20 seconds.
@@ -83,4 +84,5 @@ This script have definitely challenged my patience 😂 where I faced unexpected
  Short-term goal: Build more advanced Bash scripts and master Linux automation.
 
  Long-term goal: Solve bigger problems and deploy large-scale Linux projects.
+
 
