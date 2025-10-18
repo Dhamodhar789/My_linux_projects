@@ -21,12 +21,13 @@ It supports both interactive and automatic cleanup modes and logs all actions wi
 ./disk_cleanup.sh [--path=/dir1,/dir2] [--days=N] [--log=/path/to/logfile] [--help]
 
 ### Options:
-Option	Description	Default
---path	Comma-separated directories to scan	/tmp,/var/log
---days	Delete files older than N days	30
---log	Log file path	/tmp/disk_cleanup.log
---help	Show usage help	—
-
+```
+Option	  Description	                            Default
+--path	  Comma-separated directories to scan	    /tmp,/var/log
+--days	  Delete files older than N days	        30
+--log	    Log file path	                          /tmp/disk_cleanup.log
+--help	  Show usage help	—
+```
 #### Examples
 
 1. Run with default settings:
