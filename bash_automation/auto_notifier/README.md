@@ -1,4 +1,4 @@
-# Service Status & Auto-Notifier (Script 5)
+# Service Status & Auto-Notifier
 
 ## Overview
 
@@ -87,5 +87,6 @@ Email notifications are not implemented by default for portfolio purposes but ca
 Tested on Ubuntu 20.04 LTS / systemd environment.
 
 ## License
+
 
 MIT License — free to use and adapt.
