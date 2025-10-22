@@ -17,6 +17,8 @@ I build production-ready Bash scripts and Linux daemons that automate server tas
 	Menu-driven tool for system info & process management.	Interactive UI • Process monitoring
 4) Process Monitor
 	Restarts stopped processes and logs all events.	Auto-restart • Validation • Background daemon
+5) Service Status & Auto-Notifier
+    Continuously monitors specified Linux services,  and sends alerts via console or Slack or email
 
  ## Skills & Tools
 
@@ -45,8 +47,6 @@ LinkedIn: www.linkedin.com/in/dhamodhar-r-v-011919236
 Email: thamodharan789@gmail.com
 
 ## Next Projects (Coming Soon)
-
-Service Status & Auto-Notifier (Script 5)
 
 System Log Analyzer & Report Generator (Script 6)
 
