@@ -1,0 +1,146 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <time.h> //For time() and ctime()...
+#define MAX_LOG 150
+int overwrite_line = 0;
+int count;
+int log_number = 1;
+
+void append(char* log_file, char* log)
+{
+    FILE* fp = fopen(log_file, "a");
+    fputs(log, fp);
+    fclose(fp);
+}
+void add_nspace(char** current_log, int length_difference)
+{
+    char* ptr = *current_log;
+    while(*ptr != '\n')
+    {
+        ptr++;
+    }
+    while(length_difference)
+    {
+        //printf("length_difference:%d, strlen(*current_log):%ld\n", length_difference, strlen(*current_log));
+        *ptr = ' ';
+        ptr++;
+        length_difference--;
+    }
+    *ptr = '\n';
+    ptr++;
+    *ptr = '\0';
+}
+void overwrite(char* log_file, char* current_log, int overwrite_line)
+{
+    // printf("if(old_log_length < current_log_length) 1\n");
+    char old_log[256];
+    int line_number = 0;
+    long offset = 0;
+    // printf("if(old_log_length < current_log_length) 2\n");
+    FILE* fp = fopen(log_file, "r+");
+    fseek(fp, 0, SEEK_SET);
+    // printf("if(old_log_length < current_log_length) 3\n");
+    while(fgets(old_log, sizeof(old_log), fp) != NULL)
+    {
+        if(line_number == overwrite_line)
+        {
+            break;
+        }
+        offset = ftell(fp);
+        line_number++;
+    } 
+    int old_log_length = strlen(old_log);
+    int current_log_length = strlen(current_log);
+    if(old_log_length < current_log_length)
+    { 
+        line_number = 0;
+        fseek(fp, 0, SEEK_SET);
+        char* temp_file = "/tmp/temp.txt";
+        FILE* temp_fp = fopen(temp_file, "w");
+        while(fgets(old_log, sizeof(old_log), fp) != NULL)
+        {
+            if(line_number == overwrite_line)
+            {
+                fputs(current_log, temp_fp);
+            }
+            else
+            {
+                fputs(old_log, temp_fp);
+            }
+            line_number++;
+        }     
+        fclose(temp_fp);
+        fflush(fp); 
+        fclose(fp);
+        rename(temp_file, log_file);
+    }
+    else
+    {
+        //printf("old_log_length:%d, current_log_length:%d\n", old_log_length, current_log_length);
+        if(old_log_length > current_log_length)
+        {
+            int length_difference = old_log_length - current_log_length;
+            add_nspace(&current_log, length_difference);
+        }
+        fseek(fp, offset, SEEK_SET);
+        fputs(current_log, fp);
+        fflush(fp); 
+        fclose(fp);
+    }
+}
+
+int count_lines(char* log_file)
+{
+    FILE* fp = fopen(log_file, "r");
+    char chr;
+    chr = fgetc(fp);
+    int count = 0;
+    while(chr != EOF)
+    {
+        //printf("chr:%c\n", chr);
+        if(chr == '\n')
+        {
+            count++;
+        }
+        chr = fgetc(fp);
+    }
+    fclose(fp);
+    return count;
+}
+void logrotate(char* log_file)
+{
+    time_t currentTime;
+    char log[100];
+    // while(1)
+    // {
+    overwrite_line %= MAX_LOG;
+    count = count_lines(log_file);
+    currentTime = time(NULL);
+    // printf("count:%d\n", count);
+    int ret = snprintf(log, sizeof(log), "LOG: %d | Timestamp:%s", log_number, ctime(&currentTime));
+    if(ret < 0)
+    {
+        perror("Error in snprintf");
+        exit(EXIT_FAILURE);
+    }
+    if(count == MAX_LOG)
+    {
+        // printf("overwrite_line:%d\n", overwrite_line);
+        overwrite(log_file, log, overwrite_line);
+        overwrite_line++;
+    }
+    else if(count < MAX_LOG)
+    {
+        append(log_file, log);
+    }
+    log_number++;
+    // }
+}
+
+// int main()
+// {
+//     logrotate();
+//     return 0;
+// }
