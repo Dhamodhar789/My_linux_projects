@@ -94,6 +94,10 @@ void overwrite(char* log_file, char* current_log, int overwrite_line)
 int count_lines(char* log_file)
 {
     FILE* fp = fopen(log_file, "r");
+    if (!fp)
+    {
+        return 0;
+    }
     char chr;
     chr = fgetc(fp);
     int count = 0;
@@ -113,12 +117,9 @@ void logrotate(char* log_file)
 {
     time_t currentTime;
     char log[100];
-    // while(1)
-    // {
     overwrite_line %= MAX_LOG;
     count = count_lines(log_file);
     currentTime = time(NULL);
-    // printf("count:%d\n", count);
     int ret = snprintf(log, sizeof(log), "LOG: %d | Timestamp:%s", log_number, ctime(&currentTime));
     if(ret < 0)
     {
@@ -127,7 +128,6 @@ void logrotate(char* log_file)
     }
     if(count == MAX_LOG)
     {
-        // printf("overwrite_line:%d\n", overwrite_line);
         overwrite(log_file, log, overwrite_line);
         overwrite_line++;
     }
@@ -136,11 +136,4 @@ void logrotate(char* log_file)
         append(log_file, log);
     }
     log_number++;
-    // }
 }
-
-// int main()
-// {
-//     logrotate();
-//     return 0;
-// }

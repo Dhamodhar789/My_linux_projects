@@ -1,0 +1,34 @@
+## Day 1 — Daemon Crash Investigation
+
+### Issue:
+logrotate daemon was starting but log file was not created and no rotation happened.
+
+### Root Cause:
+`fopen()` returned NULL because file did not exist in read mode.
+`fgetc(NULL)` caused undefined behavior which silently terminated the daemon.
+
+### Fix:
+Added NULL check after fopen before using file pointer.
+
+### Concepts Learned:
+- fopen failure behavior
+- undefined behavior in C
+- daemon debugging difficulty
+- TOCTOU race conditions
+- TOCTOU = Time Of Check To Time Of Use
+    It means:
+
+    You check a condition
+    then assume it remains true
+    until you use it
+    BUT
+    something else changes it in between.
+
+    That gap = bug window.
+
+- necessity of defensive programming
+
+### Tools Used:
+- printf debugging
+- process monitoring
+- file-system analysis

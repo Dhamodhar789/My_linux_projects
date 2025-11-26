@@ -21,16 +21,16 @@ void log_daemon()
         printf("In child process\n");
         // Create new session and detach from terminal
         pid_t setsid_ret = setsid();
-        printf("!!!After setsid setsid_ret:%d\n", setsid_ret);
         if(setsid_ret < 0)
         {
             perror("Error in setsid");
             exit(EXIT_FAILURE);  // don't continue if setsid fails
         }
+        fflush(stdout);
         umask(0);
-        printf("!!!After umask");
+        fflush(stdout);
         chdir("/");
-        printf("!!!After chdir");
+        fflush(stdout);
         /*"We closed stdin, stdout, and stderr to detach the daemon from the terminal.
         But to avoid those FDs being reused by accident, we open /dev/null and redirect all three standard FDs to it.
         That way, even if some code tries to read or write to them, it won’t cause any harm."*/
@@ -47,34 +47,6 @@ void log_daemon()
         }
         while(1)
         {
-            // count++;
-            // // Get the current time
-            // currentTime = time(NULL);
-            // char str[100];
-            // //Writes log with timestamp in a variable. ctime() already returns with \n. So no need of \n in the string...
-            // int ret = snprintf(str, sizeof(str), "LOG-%d | Timestamp:%s", count, ctime(&currentTime));
-            // if(ret < 0)
-            // {
-            //     perror("Error in snprintf");
-            //     exit(EXIT_FAILURE);
-            // }
-            //  = count_logs(log_file);
-            // if(count == MAX_LOGS)
-            // {
-            //     if(!max_log_flag) 
-            //     {
-            //         max_log_flag = 1;
-            //     }
-            // }
-            // fp = fopen(log_file, "a");
-            // if(fp == NULL)
-            // {
-            //     perror("Error opening file");
-            //     exit(EXIT_FAILURE);
-            // }
-            // fputs(str, fp);
-            // fclose(fp);
-            // sleep(5);
             logrotate(log_file);
             sleep(1);
         }
