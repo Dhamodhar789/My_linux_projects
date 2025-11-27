@@ -67,9 +67,7 @@ Concepts Learned:
     - Centralized error handling via fail-fast functions
     - Difference between fatal and non-fatal file errors
     - How to design a daemon that is observable and diagnosable
-
-Defensive programming for file I/O
-
+    - Defensive programming for file I/O
     - Importance of line-ending consistency for Linux toolchains
     - Tools / Techniques Used:
     - syslog() for daemon logging
