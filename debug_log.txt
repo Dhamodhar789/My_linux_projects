@@ -4,7 +4,7 @@
 logrotate daemon was starting but log file was not created and no rotation happened.
 
 ### Root Cause:
-`fopen()` returned NULL because file did not exist in read mode.
+`fopen()` returned NULL because file did not exist in read mode when the daemon starts initially in a new environment or when the file is deleted.
 `fgetc(NULL)` caused undefined behavior which silently terminated the daemon.
 
 ### Fix:
@@ -32,3 +32,54 @@ Added NULL check after fopen before using file pointer.
 - printf debugging
 - process monitoring
 - file-system analysis
+
+
+Day 2 — Daemon Hardening with Syslog and Safe File Handling
+
+Issue:
+
+The daemon could still fail silently in multiple scenarios:
+    - fopen() failures were unchecked in append/overwrite logic
+    - Crashes produced no visible error because stderr was closed
+    - Undefined behavior was possible if file pointers were NULL
+    - Diagnosing crashes or startup issues was impossible
+
+Root Cause:
+
+    - Daemons must not assume terminal I/O is available
+    - Unchecked file operations (fopen) combined with stderr redirection caused silent failures
+    - Debug prints (printf) were ineffective inside daemonized processes
+
+Fix:
+
+    - Introduced safe_fopen() to wrap all critical file opens:
+    - Logs failure via syslog(LOG_ERR)
+    - Exits daemon safely with closelog()
+    - Replaced all fopen() calls (except count_lines) with safe_fopen()
+    - Left count_lines() to log a warning if the file did not exist yet
+    - Replaced debug printf()s with syslog messages
+    - Removed stderr redirection to /dev/null to allow logging visibility
+    - Converted all source files to Unix line endings (removed ^M)
+
+Concepts Learned:
+
+    - Proper Linux daemon logging using syslog()
+    - Centralized error handling via fail-fast functions
+    - Difference between fatal and non-fatal file errors
+    - How to design a daemon that is observable and diagnosable
+
+Defensive programming for file I/O
+
+    - Importance of line-ending consistency for Linux toolchains
+    - Tools / Techniques Used:
+    - syslog() for daemon logging
+    - dos2unix to normalize line endings
+    - Centralized wrapper functions (safe_fopen)
+    - Code refactoring for fail-fast design
+
+Result:
+
+    - All critical file operations are now fail-fast
+    - Errors and crashes are visible in journalctl
+    - Daemon no longer fails silently
+    - Startup of log file is gracefully handled

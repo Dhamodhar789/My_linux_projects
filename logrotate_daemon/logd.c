@@ -5,6 +5,9 @@
 #include <time.h> //For time() and ctime()...
 #include <sys/stat.h> //For umask...
 #include <fcntl.h> //For O_RDWR...
+#include <syslog.h>
+#include <errno.h>
+#include <string.h> //For syslog error logging when daemon dies silently
 #include "logrotate.h"
 
 void log_daemon()
@@ -26,23 +29,20 @@ void log_daemon()
             perror("Error in setsid");
             exit(EXIT_FAILURE);  // don't continue if setsid fails
         }
-        fflush(stdout);
+        openlog("logd", LOG_PID | LOG_NDELAY, LOG_DAEMON); //Iniialize syslog in daemon startup
+        syslog(LOG_INFO, "logd daemon started");
         umask(0);
-        fflush(stdout);
         chdir("/");
-        fflush(stdout);
         /*"We closed stdin, stdout, and stderr to detach the daemon from the terminal.
         But to avoid those FDs being reused by accident, we open /dev/null and redirect all three standard FDs to it.
         That way, even if some code tries to read or write to them, it won’t cause any harm."*/
         close(STDIN_FILENO);
         close(STDOUT_FILENO);
-        close(STDERR_FILENO);
         int devnull = open("/dev/null", O_RDWR);
         if(devnull != -1) 
         {
             dup2(devnull, STDIN_FILENO);
             dup2(devnull, STDOUT_FILENO);
-            dup2(devnull, STDERR_FILENO);
             if (devnull > 2) close(devnull);
         }
         while(1)

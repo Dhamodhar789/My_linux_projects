@@ -1,2 +1,2 @@
-#define MAX_LOGS 150
+#define MAX_LOG 150
 void logrotate(char* log_file);

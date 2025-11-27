@@ -3,6 +3,9 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h> //For time() and ctime()...
+#include <syslog.h>
+#include <errno.h>
+#include "file_utils.h"
 #define MAX_LOG 150
 int overwrite_line = 0;
 int count;
@@ -10,7 +13,7 @@ int log_number = 1;
 
 void append(char* log_file, char* log)
 {
-    FILE* fp = fopen(log_file, "a");
+    FILE* fp = safe_fopen(log_file, "a");
     fputs(log, fp);
     fclose(fp);
 }
@@ -39,7 +42,7 @@ void overwrite(char* log_file, char* current_log, int overwrite_line)
     int line_number = 0;
     long offset = 0;
     // printf("if(old_log_length < current_log_length) 2\n");
-    FILE* fp = fopen(log_file, "r+");
+    FILE* fp = safe_fopen(log_file, "r+");
     fseek(fp, 0, SEEK_SET);
     // printf("if(old_log_length < current_log_length) 3\n");
     while(fgets(old_log, sizeof(old_log), fp) != NULL)
@@ -58,7 +61,7 @@ void overwrite(char* log_file, char* current_log, int overwrite_line)
         line_number = 0;
         fseek(fp, 0, SEEK_SET);
         char* temp_file = "/tmp/temp.txt";
-        FILE* temp_fp = fopen(temp_file, "w");
+        FILE* temp_fp = safe_fopen(temp_file, "w");
         while(fgets(old_log, sizeof(old_log), fp) != NULL)
         {
             if(line_number == overwrite_line)
@@ -95,7 +98,9 @@ int count_lines(char* log_file)
 {
     FILE* fp = fopen(log_file, "r");
     if (!fp)
-    {
+    {        
+        syslog(LOG_WARNING,
+               "log file %s does not exist yet, starting new file", log_file);
         return 0;
     }
     char chr;
