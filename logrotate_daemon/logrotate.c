@@ -26,7 +26,6 @@ void add_nspace(char** current_log, int length_difference)
     }
     while(length_difference)
     {
-        //printf("length_difference:%d, strlen(*current_log):%ld\n", length_difference, strlen(*current_log));
         *ptr = ' ';
         ptr++;
         length_difference--;
@@ -37,14 +36,11 @@ void add_nspace(char** current_log, int length_difference)
 }
 void overwrite(char* log_file, char* current_log, int overwrite_line)
 {
-    // printf("if(old_log_length < current_log_length) 1\n");
     char old_log[256];
     int line_number = 0;
     long offset = 0;
-    // printf("if(old_log_length < current_log_length) 2\n");
     FILE* fp = safe_fopen(log_file, "r+");
     fseek(fp, 0, SEEK_SET);
-    // printf("if(old_log_length < current_log_length) 3\n");
     while(fgets(old_log, sizeof(old_log), fp) != NULL)
     {
         if(line_number == overwrite_line)
@@ -73,15 +69,27 @@ void overwrite(char* log_file, char* current_log, int overwrite_line)
                 fputs(old_log, temp_fp);
             }
             line_number++;
-        }     
+        }
+        fsync(fileno(temp_fp));
         fclose(temp_fp);
         fflush(fp); 
-        fclose(fp);
-        rename(temp_file, log_file);
+
+        if (rename(temp_file, log_file) != 0) 
+        {
+            syslog(LOG_ERR, "rename failed: %s", strerror(errno));
+            exit(EXIT_FAILURE);
+        }
+
+        int dirfd = open("/tmp", O_DIRECTORY | O_RDONLY);
+        if (dirfd >= 0) 
+        {
+            fsync(dirfd);
+            close(dirfd);
+        }
+
     }
     else
     {
-        //printf("old_log_length:%d, current_log_length:%d\n", old_log_length, current_log_length);
         if(old_log_length > current_log_length)
         {
             int length_difference = old_log_length - current_log_length;
@@ -108,7 +116,6 @@ int count_lines(char* log_file)
     int count = 0;
     while(chr != EOF)
     {
-        //printf("chr:%c\n", chr);
         if(chr == '\n')
         {
             count++;

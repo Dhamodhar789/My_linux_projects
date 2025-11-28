@@ -1,0 +1,46 @@
+Day 3 — Crash-Safe Log Rotation
+Issue:
+
+    - The daemon could silently corrupt the log file during rotation
+    - The rename() function is not instantaneous; there is a small delay while moving the temporary file to the main log file.
+    - If the daemon crashes during this period, the log file could be partially overwritten or corrupted.
+    - Previously, there was no error check after rename() and no filesystem synchronization.
+
+Root Cause:
+
+    - rename() does not guarantee atomicity in all cases, especially across different filesystems or under crash conditions.
+    - Without fsync() on the temporary file and the directory, the filesystem could reorder writes, leading to partial writes or metadata loss.
+    - No logging of errors leads to silent corruption could occur without detection.
+
+Fix:
+
+    - Check rename() return value
+    - If it fails, log the error to syslog and exit the daemon gracefully.
+    - Force write completion
+    - fsync() on the temporary file ensures all data is flushed to disk.
+    - Force directory sync
+    - fsync() on the directory ensures the rename operation metadata is persisted.
+    - Centralized error handling
+    - All fatal failures are logged via syslog for easy debugging.
+
+Concepts Learned:
+
+    - Real-world atomicity vs assumed atomicity
+    - Crash consistency in file operations
+    - Importance of flushing filesystem buffers (fsync)
+    - Handling fatal errors safely in daemons
+    - How silent corruption can occur even in a “working” program
+
+Tools / Techniques Used:
+
+    - fsync() on file and directory
+    - rename() return value validation
+    - Syslog logging for all critical failures
+    - Defensive programming for daemon safety
+
+Result:
+
+    - Log rotation is now crash-safe and atomic
+    - No silent file corruption occurs during rotation
+    - Errors are properly logged in syslog
+    - Daemon exits safely on failure
